@@ -15,8 +15,9 @@ iex> {:ok, sht} = SHT4X.start_link(bus_name: "i2c-1")
 iex> SHT4X.measure(sht)
 {:ok,
  %SHT4X.Measurement{
-   humidity_rh: 58.1079439680166,
-   temperature_c: 31.108203375347145,
-   timestamp_ms: 184143
+   dew_point_c: 25.10097138951667,
+   humidity_rh: 61.4077578051088,
+   temperature_c: 33.54358043153172,
+   timestamp_ms: 7747487
  }}
 ```

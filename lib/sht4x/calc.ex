@@ -44,4 +44,16 @@ defmodule SHT4X.Calc do
       end
     end)
   end
+
+  @doc """
+  Calculates the dew point using the August–Roche–Magnus approximation. See
+  https://en.wikipedia.org/wiki/Clausius%E2%80%93Clapeyron_relation#Meteorology_and_climatology
+  """
+  @spec dew_point(number(), number()) :: float()
+  def dew_point(humidity_rh, temperature_c) when is_number(humidity_rh) and humidity_rh > 0 do
+    log_rh = :math.log(humidity_rh / 100)
+    t = temperature_c
+
+    243.04 * (log_rh + 17.625 * t / (243.04 + t)) / (17.625 - log_rh - 17.625 * t / (243.04 + t))
+  end
 end
