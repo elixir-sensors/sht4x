@@ -3,18 +3,17 @@ defmodule SHT4X.Measurement do
   One sensor measurement
   """
 
-  defstruct [:dew_point_c, :humidity_rh, :temperature_c, :timestamp_ms]
+  use TypedStruct
 
-  @type t :: %{
-          required(:timestamp_ms) => non_neg_integer(),
-          required(:dew_point_c) => number,
-          required(:humidity_rh) => number,
-          required(:temperature_c) => number,
-          optional(:__struct__) => atom
-        }
+  typedstruct do
+    field(:dew_point_c, number)
+    field(:humidity_rh, number, enforce: true)
+    field(:temperature_c, number, enforce: true)
+    field(:timestamp_ms, integer, enforce: true)
+  end
 
-  @spec from_raw(integer, integer) :: t()
-  def from_raw(raw_t, raw_rh) do
+  @spec from_raw(<<_::48>>) :: t()
+  def from_raw(<<raw_t::16, _crc1, raw_rh::16, _crc2>>) do
     __struct__(
       humidity_rh: humidity_rh_from_raw(raw_rh),
       temperature_c: temperature_c_from_raw(raw_t),

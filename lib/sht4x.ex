@@ -39,18 +39,19 @@ defmodule SHT4X do
       "[SHT4X] Starting on bus #{bus_name} at address #{inspect(bus_address, base: :hex)}"
     )
 
-    with {:ok, transport} <-
-           SHT4X.Transport.I2C.start_link(bus_name: bus_name, bus_address: bus_address),
-         {:ok, serial_number} <- SHT4X.Comm.serial_number(transport) do
-      Logger.info("[SHT4X] Initializing sensor #{serial_number}")
+    transport = SHT4X.Transport.new(bus_name, bus_address)
 
-      state = %{
-        serial_number: serial_number,
-        transport: transport
-      }
+    case SHT4X.Comm.serial_number(transport) do
+      {:ok, serial_number} ->
+        Logger.info("[SHT4X] Initializing sensor #{serial_number}")
 
-      {:ok, state}
-    else
+        state = %{
+          serial_number: serial_number,
+          transport: transport
+        }
+
+        {:ok, state}
+
       _error ->
         {:stop, "Error connecting to the sensor"}
     end
@@ -58,7 +59,7 @@ defmodule SHT4X do
 
   @impl GenServer
   def handle_call({:measure, opts}, _from, state) do
-    response = SHT4X.Comm.measure(state.transport, opts)
-    {:reply, response, state}
+    {:ok, data} = SHT4X.Comm.measure(state.transport, opts)
+    {:reply, {:ok, SHT4X.Measurement.from_raw(data)}, state}
   end
 end

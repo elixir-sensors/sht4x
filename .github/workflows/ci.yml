@@ -7,9 +7,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - elixir: 1.11
-            otp: 23
-          - elixir: 1.12
+          - elixir: 1.13
             otp: 24
     steps:
       - name: Cancel Previous Runs
@@ -55,9 +53,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - elixir: 1.11
-            otp: 23
-          - elixir: 1.12
+          - elixir: 1.13
             otp: 24
     steps:
       - name: Cancel Previous Runs
@@ -103,9 +99,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: 1.11
-            otp: 23
-          - elixir: 1.12
+          - elixir: 1.13
             otp: 24
     steps:
       - name: Cancel Previous Runs
