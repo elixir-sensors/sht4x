@@ -13,8 +13,8 @@ defmodule SHT4X.Measurement do
           optional(:__struct__) => atom
         }
 
-  @spec from_raw(integer, integer) :: t()
-  def from_raw(raw_t, raw_rh) do
+  @spec from_raw(<<_::48>>) :: t()
+  def from_raw(<<raw_t::16, _crc1, raw_rh::16, _crc2>>) do
     __struct__(
       humidity_rh: humidity_rh_from_raw(raw_rh),
       temperature_c: temperature_c_from_raw(raw_t),

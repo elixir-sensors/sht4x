@@ -10,13 +10,17 @@ defmodule SHT4X.MixProject do
       version: @version,
       description: "Use Sensirion SHT4X humidity and temperature sensors in Elixir",
       elixir: "~> 1.11",
-      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
       aliases: [],
       dialyzer: dialyzer(),
-      docs: docs()
+      docs: docs(),
+      preferred_cli_env: %{
+        docs: :docs,
+        "hex.publish": :docs,
+        "hex.build": :docs
+      }
     ]
   end
 
@@ -27,18 +31,15 @@ defmodule SHT4X.MixProject do
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
-
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:i2c_server, "~> 0.2"},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:circuits_i2c, "~> 1.0"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.24", only: [:dev], runtime: false},
-      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
-      {:mox, "~> 1.0", only: :test}
+      {:ex_doc, "~> 0.28", only: :docs, runtime: false},
+      {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
+      {:typed_struct, "~> 0.2.1"}
     ]
   end
 
