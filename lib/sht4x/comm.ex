@@ -38,9 +38,9 @@ defmodule SHT4X.Comm do
 
   @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::48>>}
   defp read_data(transport, command, delay_ms \\ 1) do
-    with :ok <- transport.write_fn.(command),
+    with :ok <- transport.write_fn.(command, retries: transport.num_retries),
          :ok <- Process.sleep(delay_ms) do
-      transport.read_fn.(6)
+      transport.read_fn.(6, retries: transport.num_retries)
     end
   end
 end
