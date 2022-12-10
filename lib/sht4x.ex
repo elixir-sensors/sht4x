@@ -34,12 +34,13 @@ defmodule SHT4X do
   def init(init_arg) do
     bus_name = init_arg[:bus_name] || @default_bus_name
     bus_address = @bus_address
+    retries = init_arg[:retries] || 0
 
     Logger.info(
       "[SHT4X] Starting on bus #{bus_name} at address #{inspect(bus_address, base: :hex)}"
     )
 
-    transport = SHT4X.Transport.new(bus_name, bus_address)
+    transport = SHT4X.Transport.new(bus_name, bus_address, retries)
 
     case SHT4X.Comm.serial_number(transport) do
       {:ok, serial_number} ->
