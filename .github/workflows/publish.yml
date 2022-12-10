@@ -1,23 +1,35 @@
 name: Publish
+
 on:
   push:
     tags: ['v*']
+
 jobs:
-  publish:
-    runs-on: ubuntu-latest
+  publish_job:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - pair:
+              elixir: 1.14.2
+              otp: 25.1.2
     steps:
-    - uses: actions/checkout@v2
-    - uses: erlef/setup-elixir@v1
+    - uses: actions/checkout@v3
+
+    - uses: erlef/setup-beam@v1
       with:
-        otp-version: '24'
-        elixir-version: '1.12'
-    - uses: actions/cache@v2
+        elixir-version: ${{ matrix.pair.elixir }}
+        otp-version: ${{ matrix.pair.otp }}
+
+    - uses: actions/cache@v3
       with:
         path: deps
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        key: ${{ runner.os }}-mix-${{matrix.pair.elixir}}-${{matrix.pair.otp}}-${{ hashFiles('**/mix.lock') }}
         restore-keys: |
           ${{ runner.os }}-mix-
+
     - run: mix deps.get
+
     - run: mix hex.publish --yes
       env:
         HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

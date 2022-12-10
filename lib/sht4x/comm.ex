@@ -10,11 +10,13 @@ defmodule SHT4X.Comm do
 
   @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF} | :error
   def serial_number(transport) do
-    with {:ok, <<data1::16, _crc1, data2::16, _crc2>>} <- read_data(transport, @cmd_serial_number) do
-      <<value::unsigned-big-32>> = <<data1::16, data2::16>>
-      {:ok, value}
-    else
-      _ -> :error
+    case read_data(transport, @cmd_serial_number) do
+      {:ok, <<data1::16, _crc1, data2::16, _crc2>>} ->
+        <<value::unsigned-big-32>> = <<data1::16, data2::16>>
+        {:ok, value}
+
+      _ ->
+        :error
     end
   end
 
