@@ -1,9 +1,7 @@
 defmodule SHT4X.Comm do
   @moduledoc false
 
-  alias SHT4X.{Measurement, Transport}
-
-  use Bitwise
+  alias SHT4X.Transport
 
   @cmd_serial_number <<0x89>>
   @cmd_measure_high_repeatability <<0xFD>>

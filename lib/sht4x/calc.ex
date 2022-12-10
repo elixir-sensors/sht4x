@@ -1,7 +1,7 @@
 defmodule SHT4X.Calc do
   @moduledoc false
 
-  use Bitwise
+  import Bitwise
 
   @doc """
   The 8-bit CRC checksum transmitted after each data word. See Sensirion docs:
