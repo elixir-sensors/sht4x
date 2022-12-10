@@ -8,7 +8,7 @@ defmodule SHT4X.MixProject do
     [
       app: :sht4x,
       version: @version,
-      description: "Use Sensirion SHT4X humidity and temperature sensors in Elixir",
+      description: description(),
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -29,6 +29,10 @@ defmodule SHT4X.MixProject do
     [
       extra_applications: [:logger]
     ]
+  end
+
+  def description do
+    "Use Sensirion SHT4X humidity and temperature sensors in Elixir"
   end
 
   # Run "mix help deps" to learn about dependencies.

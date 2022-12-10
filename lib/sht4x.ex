@@ -7,28 +7,40 @@ defmodule SHT4X do
 
   require Logger
 
-  @type options() :: [GenServer.option() | {:bus_name, bus_name}]
-
   @typedoc """
-  Which I2C bus to use (defaults to `"i2c-1"`)
+  SHT4X GenServer start_link options
+  * `:name` - a name for the GenServer
+  * `:bus_name` - which I2C bus to use (e.g., `"i2c-1"`)
+  * `:retries` - the number of retries before failing (defaults to no retries)
   """
-  @type bus_name :: binary
+  @type options() :: [GenServer.option() | {:bus_name, binary}]
 
   @default_bus_name "i2c-1"
   @bus_address 0x44
 
+  ## Public API
+
+  @doc """
+  Start a new GenServer for interacting with a SHT4X.
+  """
   @spec start_link(options()) :: GenServer.on_start()
-  def start_link(init_arg \\ []) do
-    gen_server_opts =
-      Keyword.take(init_arg, [:name, :debug, :timeout, :spawn_opt, :hibernate_after])
+  def start_link(opts \\ []) do
+    gen_server_opts = Keyword.take(opts, [:name, :debug, :timeout, :spawn_opt, :hibernate_after])
+    init_arg = Keyword.take(opts, [:bus_name, :retries])
 
     GenServer.start_link(__MODULE__, init_arg, gen_server_opts)
   end
 
+  @doc """
+  Measure the current temperature and pressure.
+  An error is returned if the I2C transactions fail.
+  """
   @spec measure(GenServer.server(), Keyword.t()) :: {:ok, SHT4X.Measurement.t()} | {:error, any}
   def measure(server, opts \\ []) do
     GenServer.call(server, {:measure, opts})
   end
+
+  ## Callbacks
 
   @impl GenServer
   def init(init_arg) do
