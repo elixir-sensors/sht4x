@@ -104,7 +104,7 @@ jobs:
       - run: mix compile --warnings-as-errors
         if: ${{ matrix.lint }}
 
-      - run: mix dialyzer --no-check --ignore-exit-status
+      - run: mix dialyzer
         if: ${{ matrix.lint }}
 
   test_job:
