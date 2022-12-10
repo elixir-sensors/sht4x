@@ -1,8 +1,9 @@
 defmodule SHT4X.MixProject do
   use Mix.Project
 
-  @version "0.1.2"
+  @version "0.1.3"
   @source_url "https://github.com/mnishiguchi/sht4x"
+  @sht4x_datasheet_url "https://cdn-learn.adafruit.com/assets/assets/000/099/223/original/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf"
 
   def project do
     [
@@ -56,9 +57,10 @@ defmodule SHT4X.MixProject do
   defp docs do
     [
       main: "readme",
-      extras: ["README.md"],
+      extras: ["README.md", "CHANGELOG.md"],
       source_ref: "v#{@version}",
-      source_url: @source_url
+      source_url: @source_url,
+      skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
     ]
   end
 
@@ -66,16 +68,16 @@ defmodule SHT4X.MixProject do
     %{
       files: [
         "lib",
+        "test",
         "mix.exs",
         "README.md",
-        "LICENSE*",
-        "CHANGELOG*"
+        "LICENSE",
+        "CHANGELOG.md"
       ],
       licenses: ["MIT"],
       links: %{
         "GitHub" => @source_url,
-        "Data sheet" =>
-          "https://cdn-learn.adafruit.com/assets/assets/000/099/223/original/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf"
+        "Data sheet" => @sht4x_datasheet_url
       }
     }
   end
