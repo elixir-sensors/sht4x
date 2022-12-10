@@ -8,37 +8,43 @@ defmodule SHT4X.Comm do
   @cmd_measure_medium_repeatability <<0xF6>>
   @cmd_measure_low_repeatability <<0xE0>>
 
-  @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF}
+  @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF} | :error
   def serial_number(transport) do
     with {:ok, <<data1::16, _crc1, data2::16, _crc2>>} <- read_data(transport, @cmd_serial_number) do
       <<value::unsigned-big-32>> = <<data1::16, data2::16>>
       {:ok, value}
+    else
+      _ -> :error
     end
   end
 
-  @spec measure(Transport.t(), Enum.t()) :: {:ok, <<_::48>>}
+  @spec measure(Transport.t(), keyword) :: {:ok, <<_::48>>} | :error
   def measure(transport, opts \\ []) do
-    do_measure(transport, opts[:repeatability] || :high)
+    repeatability = opts[:repeatability] || :high
+    do_measure(transport, repeatability)
   end
 
-  @spec do_measure(Transport.t(), :low | :medium | :high) :: {:ok, <<_::48>>}
-  defp do_measure(transport, :low) do
-    read_data(transport, @cmd_measure_low_repeatability, 1)
+  @spec do_measure(Transport.t(), :low | :medium | :high) :: {:ok, <<_::48>>} | :error
+  defp do_measure(transport, repeatability) do
+    read_data(transport, cmd_measure(repeatability), delay_ms_for_measure(repeatability))
   end
 
-  defp do_measure(transport, :medium) do
-    read_data(transport, @cmd_measure_medium_repeatability, 4)
-  end
+  defp cmd_measure(:low), do: @cmd_measure_low_repeatability
+  defp cmd_measure(:medium), do: @cmd_measure_medium_repeatability
+  defp cmd_measure(:high), do: @cmd_measure_high_repeatability
 
-  defp do_measure(transport, :high) do
-    read_data(transport, @cmd_measure_high_repeatability, 8)
-  end
+  defp delay_ms_for_measure(:low), do: 1
+  defp delay_ms_for_measure(:medium), do: 4
+  defp delay_ms_for_measure(:high), do: 8
 
-  @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::48>>}
+  @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::48>>} | :error
   defp read_data(transport, command, delay_ms \\ 1) do
     with :ok <- transport.write_fn.(command),
-         :ok <- Process.sleep(delay_ms) do
-      transport.read_fn.(6)
+         :ok <- Process.sleep(delay_ms),
+         {:ok, binary} <- transport.read_fn.(6) do
+      {:ok, binary}
+    else
+      _ -> :error
     end
   end
 end

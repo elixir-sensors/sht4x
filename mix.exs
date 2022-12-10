@@ -49,7 +49,7 @@ defmodule SHT4X.MixProject do
 
   defp dialyzer() do
     [
-      flags: [:race_conditions, :unmatched_returns, :error_handling, :underspecs]
+      flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs]
     ]
   end
 
