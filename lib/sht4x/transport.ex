@@ -28,7 +28,7 @@ defmodule SHT4X.Transport do
      }}
   end
 
-  @spec new(binary, 0..127, non_neg_integer) :: t()
+  @spec new(binary, 0..127, non_neg_integer) :: {:ok, t()} | {:error, any}
   def new(bus_name, address, retries)
       when is_binary(bus_name) and is_integer(address) and is_integer(retries) do
     case Circuits.I2C.open(bus_name) do
