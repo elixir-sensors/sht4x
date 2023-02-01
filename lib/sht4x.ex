@@ -52,21 +52,24 @@ defmodule SHT4X do
       "[SHT4X] Starting on bus #{bus_name} at address #{inspect(bus_address, base: :hex)}"
     )
 
-    transport = SHT4X.Transport.new(bus_name, bus_address, retries)
+    with {:ok, transport} <- SHT4X.Transport.new(bus_name, bus_address, retries),
+         {:ok, serial_number} <- SHT4X.Comm.serial_number(transport) do
+      Logger.info("[SHT4X] Initializing sensor #{serial_number}")
 
-    case SHT4X.Comm.serial_number(transport) do
-      {:ok, serial_number} ->
-        Logger.info("[SHT4X] Initializing sensor #{serial_number}")
+      state = %{
+        serial_number: serial_number,
+        transport: transport
+      }
 
-        state = %{
-          serial_number: serial_number,
-          transport: transport
-        }
+      {:ok, state}
+    else
+      {:error, reason} ->
+        Logger.error("[SHT4X] Error connecting to sensor: #{reason}")
+        {:stop, :normal}
 
-        {:ok, state}
-
-      _error ->
-        {:stop, "Error connecting to the sensor"}
+      :error ->
+        Logger.error("[SHT4X] Error connecting to sensor")
+        {:stop, :normal}
     end
   end
 
