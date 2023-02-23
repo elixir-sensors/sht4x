@@ -76,6 +76,6 @@ defmodule SHT4X do
   @impl GenServer
   def handle_call({:measure, opts}, _from, state) do
     {:ok, data} = SHT4X.Comm.measure(state.transport, opts)
-    {:reply, {:ok, SHT4X.Measurement.from_raw(data)}, state}
+    {:reply, {:ok, SHT4X.Measurement.from_raw(data, opts)}, state}
   end
 end
