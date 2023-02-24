@@ -16,21 +16,16 @@ defmodule SHT4X.Measurement do
 
   @spec from_raw(<<_::48>>, Keyword.t()) :: t()
   def from_raw(<<raw_t::16, _crc1, raw_rh::16, _crc2>>, opts) do
-    temperature_compensation_func =
-      Keyword.get(opts, :temperature_compensation_func, fn v -> v end)
-
-    humidity_compensation_func = Keyword.get(opts, :humidity_compensation_func, fn v -> v end)
-
-    corrected_raw_t = temperature_compensation_func.(raw_t)
-    corrected_raw_rh = humidity_compensation_func.(raw_rh)
+    compensation_func = Keyword.get(opts, :compensation_func, &Function.identity/1)
 
     __struct__(
-      humidity_rh: humidity_rh_from_raw(corrected_raw_rh),
-      temperature_c: temperature_c_from_raw(corrected_raw_t),
+      humidity_rh: humidity_rh_from_raw(raw_rh),
+      temperature_c: temperature_c_from_raw(raw_t),
       raw_reading_temperature: raw_t,
       raw_reading_humidity: raw_rh,
       timestamp_ms: System.monotonic_time(:millisecond)
     )
+    |> compensation_func.()
     |> put_dew_point_c()
   end
 
