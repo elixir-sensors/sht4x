@@ -1,6 +1,7 @@
 defmodule SHT4X.Comm do
   @moduledoc false
 
+  alias SHT4X.Calc
   alias SHT4X.Transport
 
   @cmd_serial_number <<0x89>>
@@ -39,11 +40,23 @@ defmodule SHT4X.Comm do
   defp delay_ms_for_measure(:medium), do: 4
   defp delay_ms_for_measure(:high), do: 8
 
+  defp check_crc(<<raw_t1, raw_t2, crc1, raw_rh1, raw_rh2, crc2>> = binary) do
+    computed_crc1 = Calc.checksum(<<raw_t1, raw_t2>>)
+    computed_crc2 = Calc.checksum(<<raw_rh1, raw_rh2>>)
+
+    if computed_crc1 == crc1 && computed_crc2 == crc2 do
+      {:ok, binary}
+    else
+      :error
+    end
+  end
+
   @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::48>>} | :error
   defp read_data(transport, command, delay_ms \\ 1) do
     with :ok <- transport.write_fn.(command),
          :ok <- Process.sleep(delay_ms),
-         {:ok, binary} <- transport.read_fn.(6) do
+         {:ok, binary} <- transport.read_fn.(6),
+         {:ok, binary} <- check_crc(binary) do
       {:ok, binary}
     else
       _ -> :error
