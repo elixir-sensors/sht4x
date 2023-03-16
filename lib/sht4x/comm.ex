@@ -22,8 +22,8 @@ defmodule SHT4X.Comm do
   end
 
   @spec measure(Transport.t(), keyword) :: {:ok, <<_::48>>} | :error
-  def measure(transport, opts \\ []) do
-    repeatability = opts[:repeatability] || :high
+  def measure(transport, opts) do
+    repeatability = opts[:repeatability]
     do_measure(transport, repeatability)
   end
 
