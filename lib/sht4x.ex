@@ -65,12 +65,12 @@ defmodule SHT4X do
   end
 
   @doc """
-  Measure the current temperature and humidity.
-  An error is returned if the I2C transactions fail.
+  Returns the latest temperature and humidity measurement
+  An error is returned if a measurement isn't available
   """
-  @spec measure(GenServer.server(), Keyword.t()) :: {:ok, SHT4X.Measurement.t()} | {:error, any}
-  def measure(server, opts \\ []) do
-    GenServer.call(server, {:measure, opts})
+  @spec measure(GenServer.server()) :: {:ok, SHT4X.Measurement.t()} | {:error, :no_data}
+  def measure(server) do
+    GenServer.call(server, :measure)
   end
 
   ## Callbacks
