@@ -32,7 +32,7 @@ defmodule SHT4X do
   end
 
   @doc """
-  Measure the current temperature and pressure.
+  Measure the current temperature and humidity.
   An error is returned if the I2C transactions fail.
   """
   @spec measure(GenServer.server(), Keyword.t()) :: {:ok, SHT4X.Measurement.t()} | {:error, any}
