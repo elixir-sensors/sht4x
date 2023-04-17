@@ -4,7 +4,8 @@ defmodule SHT4X.Transport do
   use TypedStruct
 
   typedstruct do
-    field(:address, 0..127, enforce: true)
+    field(:address, Circuits.I2C.address(), enforce: true)
+    # We want to allow ref to be of any type so that we can use sim etc as needed.
     field(:ref, any, enforce: true)
     field(:retries, non_neg_integer, default: 0)
     field(:read_fn, (pos_integer -> {:ok, binary} | {:error, any}), enforce: true)
@@ -12,19 +13,19 @@ defmodule SHT4X.Transport do
     field(:write_read_fn, (iodata, pos_integer -> {:ok, binary} | {:error, any}), enforce: true)
   end
 
-  @spec new(any, 0..127, non_neg_integer) :: {:ok, t()} | {:error, any}
-  def new(bus_name, address, retries) when is_binary(bus_name) do
+  @spec new(String.t(), Circuits.I2C.address(), non_neg_integer) :: {:ok, t()} | {:error, any}
+  def new(bus_name, address, retries)
+      when is_binary(bus_name) and is_integer(address) and is_integer(retries) do
     case Circuits.I2C.open(bus_name) do
       {:error, err} ->
         {:error, err}
 
       {:ok, ref} ->
-        new(ref, address, retries)
+        ref_to_struct(ref, address, retries)
     end
   end
 
-  # We want to allow ref to be of any type so that we can use sim etc as needed.
-  def new(ref, address, retries) when is_integer(address) and is_integer(retries) do
+  defp ref_to_struct(ref, address, retries) when is_integer(address) and is_integer(retries) do
     opts = [retries: retries]
 
     {:ok,
