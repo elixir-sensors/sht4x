@@ -25,9 +25,9 @@ defmodule SHT4X do
   @type option ::
           {:debug, GenServer.debug()}
           | {:name, GenServer.name()}
-          | {:timeout, GenServer.timeout()}
+          | {:timeout, timeout()}
           | {:spawn_opt, [Process.spawn_opt()]}
-          | {:hibernate_after, GenServer.timeout()}
+          | {:hibernate_after, timeout()}
           | {:bus_name, binary()}
           | {:retries, pos_integer()}
           | {:compensation_callback, compensation_callback()}
@@ -102,7 +102,7 @@ defmodule SHT4X do
       }
 
       interval = Keyword.get(init_arg, :measurement_interval, @default_interval)
-      :timer.send_interval(interval, :do_measure)
+      {:ok, _tref} = :timer.send_interval(interval, :do_measure)
 
       Logger.info(
         "[SHT4X] Initializing | S/N: #{serial_number} | Options: #{inspect(state.options)}"
