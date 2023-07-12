@@ -2,7 +2,7 @@ defmodule SHT4X.MixProject do
   use Mix.Project
 
   @version "0.1.4"
-  @source_url "https://github.com/mnishiguchi/sht4x"
+  @source_url "https://github.com/elixir-sensors/sht4x"
   @sht4x_datasheet_url "https://cdn-learn.adafruit.com/assets/assets/000/099/223/original/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf"
 
   def project do
