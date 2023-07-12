@@ -16,9 +16,9 @@ defmodule SHT4X do
   SHT4X GenServer start_link options
   * `:name` - a name for the GenServer
   * `:bus_name` - which I2C bus to use (e.g., `"i2c-1"`)
-  * `:retries` - the number of retries before failing (defaults to no retries)
+  * `:retries` - the number of retries before failing (defaults to 3 retries)
   * `:compensation_callback` - a function that takes in a `SHT4X.Measurement.t()` and returns a potentially modified `SHT4X.Measurement.t()`
-  * `:measurement_interval` - how often data will be read from the sensor
+  * `:measurement_interval` - how often data will be read from the sensor (defaults to 5_000 ms)
   * `:repeatability` - accuracy of the requested sensor read (`:low`, `:medium`, or `:high`)
   * Also accepts all other standard `GenServer` start_link options
   """
