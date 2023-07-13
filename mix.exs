@@ -44,6 +44,7 @@ defmodule SHT4X.MixProject do
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.28", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
+      {:cerlc, "~> 0.2.0"},
       {:typed_struct, "~> 0.3.0"}
     ]
   end
