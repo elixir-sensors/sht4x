@@ -1,48 +1,30 @@
 defmodule SHT4X.Calc do
   @moduledoc false
 
-  import Bitwise
+  @crc_alg :cerlc.init(:crc8_sensirion)
 
   @doc """
+  Check the CRC on the temperature/humidity report
+
   The 8-bit CRC checksum transmitted after each data word. See Sensirion docs:
   * [Data sheet](https://cdn-learn.adafruit.com/assets/assets/000/097/511/original/Sensirion_Gas-Sensors_SGP40_Datasheet.pdf) - Section 4
   * https://github.com/Sensirion/embedded-common/blob/1ac7c72c895d230c6f1375865f3b7161ce6b665a/sensirion_common.c#L60
 
   ## Examples
 
-      # list of bytes
-      iex> checksum([0xBE, 0xEF])
-      0x92
-      iex> checksum([0x80, 0x00])
-      0xA2
-      iex> checksum([0x66, 0x66])
-      0x93
+      iex> SHT4X.Calc.crc_ok?(<<0xBEEF::16, 0x92, 0x8000::16, 0xA2>>)
+      true
 
-      # binary
-      iex> checksum(<<0xBEEF::16>>)
-      0x92
-      iex> checksum(<<0x8000::16>>)
-      0xA2
-      iex> checksum(<<0x6666::16>>)
-      0x93
-
+      iex> SHT4X.Calc.crc_ok?(<<0xBEEF::16, 0x92, 0x8000::16, 0xA3>>)
+      false
   """
-  @spec checksum(binary | list) :: byte
-  def checksum(bytes_binary) when is_binary(bytes_binary) do
-    bytes_binary |> :binary.bin_to_list() |> checksum()
+  @spec crc_ok?(<<_::48>>) :: boolean()
+  def crc_ok?(<<raw_t::binary-size(2), crc1, raw_rh::binary-size(2), crc2>>) do
+    crc1 == crc(raw_t) and crc2 == crc(raw_rh)
   end
 
-  def checksum(bytes_list) when is_list(bytes_list) do
-    Enum.reduce(bytes_list, 0xFF, &process_byte_for_checksum/2) &&& 0xFF
-  end
-
-  defp process_byte_for_checksum(byte, acc) do
-    Enum.reduce(0..7, bxor(acc, byte), fn _bit, acc ->
-      case acc &&& 0x80 do
-        0 -> acc <<< 1
-        _ -> bxor(acc <<< 1, 0x31)
-      end
-    end)
+  defp crc(bytes) do
+    :cerlc.calc_crc(bytes, @crc_alg)
   end
 
   @doc """
