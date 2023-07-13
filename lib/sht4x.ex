@@ -91,7 +91,15 @@ defmodule SHT4X do
         :stale_threshold
       ])
 
-    GenServer.start_link(__MODULE__, init_arg, gen_server_opts)
+    case GenServer.start_link(__MODULE__, init_arg, gen_server_opts) do
+      {:ok, sensor_pid} ->
+        # Fire off an initial measurement
+        send(sensor_pid, :do_sample)
+        {:ok, sensor_pid}
+
+      other ->
+        other
+    end
   end
 
   @doc """
@@ -133,7 +141,7 @@ defmodule SHT4X do
       }
 
       interval = Keyword.get(init_arg, :measurement_interval, @default_interval)
-      {:ok, _tref} = :timer.send_interval(interval, :do_measure)
+      {:ok, _tref} = :timer.send_interval(interval, :do_sample)
 
       Logger.info(
         "[SHT4X] Initializing | S/N: #{serial_number} | Options: #{inspect(state.options)}"
