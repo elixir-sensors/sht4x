@@ -181,21 +181,25 @@ defmodule SHT4X do
         if state.current_raw_measurement.quality == :unusable do
           {:noreply, state}
         else
-          now = System.monotonic_time(:millisecond)
           measurement_compensated = compensation_callback.(state.current_raw_measurement)
-
-          if now - measurement_compensated.timestamp_ms >= state.options[:stale_threshold] do
-            # Mark the current samples as stale
-            {:noreply,
-             %{
-               state
-               | current_measurement: %{measurement_compensated | quality: :stale},
-                 current_raw_measurement: %{state.current_raw_measurement | quality: :stale}
-             }}
-          else
-            {:noreply, %{state | current_measurement: measurement_compensated}}
-          end
+          check_staleness(state, measurement_compensated)
         end
+    end
+  end
+
+  defp check_staleness(state, measurement_compensated) do
+    now = System.monotonic_time(:millisecond)
+
+    if now - measurement_compensated.timestamp_ms >= state.options[:stale_threshold] do
+      # Mark the current samples as stale
+      {:noreply,
+       %{
+         state
+         | current_measurement: %{measurement_compensated | quality: :stale},
+           current_raw_measurement: %{state.current_raw_measurement | quality: :stale}
+       }}
+    else
+      {:noreply, %{state | current_measurement: measurement_compensated}}
     end
   end
 
