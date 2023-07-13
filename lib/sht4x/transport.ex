@@ -10,7 +10,6 @@ defmodule SHT4X.Transport do
     field(:retries, non_neg_integer, enforce: true)
     field(:read_fn, (pos_integer -> {:ok, binary} | {:error, any}), enforce: true)
     field(:write_fn, (iodata -> :ok | {:error, any}), enforce: true)
-    field(:write_read_fn, (iodata, pos_integer -> {:ok, binary} | {:error, any}), enforce: true)
   end
 
   @spec new(String.t(), Circuits.I2C.address(), non_neg_integer) :: {:ok, t()} | {:error, any}
@@ -34,8 +33,7 @@ defmodule SHT4X.Transport do
        address: address,
        retries: retries,
        read_fn: &Circuits.I2C.read(ref, address, &1, opts),
-       write_fn: &Circuits.I2C.write(ref, address, &1, opts),
-       write_read_fn: &Circuits.I2C.write_read(ref, address, &1, &2, opts)
+       write_fn: &Circuits.I2C.write(ref, address, &1, opts)
      }}
   end
 end
