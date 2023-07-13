@@ -13,6 +13,18 @@ defmodule SHT4X do
   @type compensation_callback :: (SHT4X.Measurement.t() -> SHT4X.Measurement.t()) | nil
 
   @typedoc """
+  How "fresh" is the sample we fetched from the sensor's GenServer?
+  In the event that the sensor fails to report back a measurement during a polling interval, we re-use the last sample.
+  If this continues to happen over a time period that exceeds the `:stale_threshold`, we mark the re-used "current" sample as stale.
+
+  The possible values can be:
+  - `:fresh` - The sample is less than 60 sec. old
+  - `:stale` - The sample is more than 60 sec. old
+  - `:unusable` - The sample is a hard-coded sample value, and shouldn't be used
+  """
+  @type quality :: :fresh | :stale | :unusable
+
+  @typedoc """
   SHT4X GenServer start_link options
   * `:name` - a name for the GenServer
   * `:bus_name` - which I2C bus to use (e.g., `"i2c-1"`)
@@ -43,6 +55,17 @@ defmodule SHT4X do
   @default_func &Function.identity/1
   @bus_address 0x44
 
+  # This is a hard-coded value to be retuning in the very unlikely situation that we have no reading at all
+  # It's unusable, and marked as such in the `:quality` field.
+  @hardcoded_value %SHT4X.Measurement{
+    timestamp_ms: 0,
+    raw_reading_humidity: 0,
+    raw_reading_temperature: 0,
+    temperature_c: 23.0,
+    humidity_rh: 50,
+    dew_point_c: 32,
+    quality: :unusable
+  }
   ## Public API
 
   @doc """

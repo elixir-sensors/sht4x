@@ -12,6 +12,7 @@ defmodule SHT4X.Measurement do
     field(:raw_reading_temperature, integer, enforce: true)
     field(:raw_reading_humidity, integer, enforce: true)
     field(:timestamp_ms, integer, enforce: true)
+    field(:quality, SHT4X.quality(), enforce: true)
   end
 
   @doc """
@@ -33,7 +34,8 @@ defmodule SHT4X.Measurement do
       dew_point_c: SHT4X.Calc.dew_point(humidity_rh, temperature_c),
       raw_reading_temperature: raw_t,
       raw_reading_humidity: raw_rh,
-      timestamp_ms: timestamp_ms
+      timestamp_ms: timestamp_ms,
+      quality: :fresh
     )
   end
 
