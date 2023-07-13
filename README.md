@@ -1,7 +1,7 @@
 # SHT4X
 
 [![Hex version](https://img.shields.io/hexpm/v/sht4x.svg 'Hex version')](https://hex.pm/packages/sht4x)
-[![CI](https://github.com/elixir-sensors/sht4x/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/elixir-sensors/sht4x/actions/workflows/ci.yml)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/elixir-sensors/sht4x/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/elixir-sensors/sht4x/tree/main)
 
 Read temperature and humidity from [Sensirion SHT4x sensors](https://www.sensirion.com/en/environmental-sensors) in Elixir.
 
