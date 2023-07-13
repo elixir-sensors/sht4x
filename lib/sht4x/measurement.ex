@@ -14,16 +14,27 @@ defmodule SHT4X.Measurement do
     field(:timestamp_ms, integer, enforce: true)
   end
 
+  @doc """
+  Interprets one raw temperature/humidity message
+
+  This returns a Measurement struct with the raw register values and their
+  interpreted temperature and humidity.  It does not apply any compensation so
+  this is real temperature and humidity detected.
+  """
   @spec from_raw(<<_::48>>) :: t()
   def from_raw(<<raw_t::16, _crc1, raw_rh::16, _crc2>>) do
+    timestamp_ms = System.monotonic_time(:millisecond)
+    temperature_c = temperature_c_from_raw(raw_t)
+    humidity_rh = humidity_rh_from_raw(raw_rh)
+
     __struct__(
-      humidity_rh: humidity_rh_from_raw(raw_rh),
-      temperature_c: temperature_c_from_raw(raw_t),
+      temperature_c: temperature_c,
+      humidity_rh: humidity_rh,
+      dew_point_c: SHT4X.Calc.dew_point(humidity_rh, temperature_c),
       raw_reading_temperature: raw_t,
       raw_reading_humidity: raw_rh,
-      timestamp_ms: System.monotonic_time(:millisecond)
+      timestamp_ms: timestamp_ms
     )
-    |> put_dew_point_c()
   end
 
   defp humidity_rh_from_raw(raw_rh) do
@@ -32,12 +43,5 @@ defmodule SHT4X.Measurement do
 
   defp temperature_c_from_raw(raw_t) do
     -45 + 175 * raw_t / (0xFFFF - 1)
-  end
-
-  defp put_dew_point_c(measurement) do
-    struct!(
-      measurement,
-      dew_point_c: SHT4X.Calc.dew_point(measurement.humidity_rh, measurement.temperature_c)
-    )
   end
 end
