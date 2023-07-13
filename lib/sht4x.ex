@@ -32,6 +32,7 @@ defmodule SHT4X do
   * `:compensation_callback` - a function that takes in a `SHT4X.Measurement.t()` and returns a potentially modified `SHT4X.Measurement.t()`
   * `:measurement_interval` - how often data will be read from the sensor (defaults to 5_000 ms)
   * `:repeatability` - accuracy of the requested sensor read (`:low`, `:medium`, or `:high`)
+  * `:stale_threshold` - number of milliseconds a sample can remain the current sample before it is marked stale
   * Also accepts all other standard `GenServer` start_link options
   """
   @type option ::
@@ -45,6 +46,7 @@ defmodule SHT4X do
           | {:compensation_callback, compensation_callback()}
           | {:measurement_interval, pos_integer()}
           | {:repeatability, :low | :medium | :high}
+          | {:stale_threshold, pos_integer()}
 
   @type options :: [option()]
 
@@ -66,6 +68,10 @@ defmodule SHT4X do
     dew_point_c: 32,
     quality: :unusable
   }
+
+  # Default number of milliseconds a sample has to remain the "current" sample before we consider it stale
+  @default_stale_threshold 60_000
+
   ## Public API
 
   @doc """
@@ -81,7 +87,8 @@ defmodule SHT4X do
         :retries,
         :compensation_callback,
         :measurement_interval,
-        :repeatability
+        :repeatability,
+        :stale_threshold
       ])
 
     GenServer.start_link(__MODULE__, init_arg, gen_server_opts)
@@ -111,15 +118,16 @@ defmodule SHT4X do
       retries: Keyword.get(init_arg, :retries, @default_retries),
       compensation_callback: Keyword.get(init_arg, :compensation_callback, @default_func),
       measurement_interval: Keyword.get(init_arg, :measurement_interval, @default_interval),
-      repeatability: Keyword.get(init_arg, :repeatability, @default_repeatability)
+      repeatability: Keyword.get(init_arg, :repeatability, @default_repeatability),
+      stale_threshold: Keyword.get(init_arg, :repeatability, @default_stale_threshold)
     ]
 
     with {:ok, transport} <- SHT4X.Transport.new(bus_name, bus_address, options[:retries]),
          {:ok, serial_number} <- SHT4X.Comm.serial_number(transport) do
       state = %{
         options: options,
-        current_measurement: nil,
-        last_raw_measurement: nil,
+        current_measurement: @hardcoded_value,
+        current_raw_measurement: @hardcoded_value,
         serial_number: serial_number,
         transport: transport
       }
@@ -156,26 +164,35 @@ defmodule SHT4X do
          %{
            state
            | current_measurement: measurement_compensated,
-             last_raw_measurement: measurement_raw
+             current_raw_measurement: measurement_raw
          }}
 
       _ ->
         # Always call the compensation function on the last good raw reading we had, if there is one.
-        if state.last_raw_measurement == nil do
+        # Unless the quality of that sample is unusable.
+        if state.current_raw_measurement.quality == :unusable do
           {:noreply, state}
         else
-          measurement_compensated = compensation_callback.(state.last_raw_measurement)
-          {:noreply, %{state | current_measurement: measurement_compensated}}
+          now = System.monotonic_time(:millisecond)
+          measurement_compensated = compensation_callback.(state.current_raw_measurement)
+
+          if now - measurement_compensated.timestamp_ms >= state.options[:stale_threshold] do
+            # Mark the current samples as stale
+            {:noreply,
+             %{
+               state
+               | current_measurement: %{measurement_compensated | quality: :stale},
+                 current_raw_measurement: %{state.current_raw_measurement | quality: :stale}
+             }}
+          else
+            {:noreply, %{state | current_measurement: measurement_compensated}}
+          end
         end
     end
   end
 
   @impl GenServer
   def handle_call(:get_sample, _from, state) do
-    if state.current_measurement == nil do
-      {:reply, {:error, :no_data}, state}
-    else
-      {:reply, state.current_measurement, state}
-    end
+    {:reply, state.current_measurement, state}
   end
 end
