@@ -65,12 +65,12 @@ defmodule SHT4X do
   end
 
   @doc """
-  Returns the latest temperature and humidity measurement
-  An error is returned if a measurement isn't available
+  Fetches the latest sample from the sensor's GenServer.
+  NOTE: This does not cause an on-demand read from the sensor.
   """
-  @spec measure(GenServer.server()) :: {:ok, SHT4X.Measurement.t()} | {:error, :no_data}
-  def measure(server) do
-    GenServer.call(server, :measure)
+  @spec get_sample(GenServer.server()) :: SHT4X.Measurement.t() | {:error, :no_data}
+  def get_sample(sensor_ref) do
+    GenServer.call(sensor_ref, :get_sample)
   end
 
   ## Callbacks
@@ -121,7 +121,7 @@ defmodule SHT4X do
   end
 
   @impl GenServer
-  def handle_info(:do_measure, state) do
+  def handle_info(:do_sample, state) do
     compensation_callback = state.options[:compensation_callback]
 
     case SHT4X.Comm.measure(state.transport, state.options) do
@@ -148,11 +148,11 @@ defmodule SHT4X do
   end
 
   @impl GenServer
-  def handle_call(:measure, _from, state) do
+  def handle_call(:get_sample, _from, state) do
     if state.current_measurement == nil do
       {:reply, {:error, :no_data}, state}
     else
-      {:reply, {:ok, state.current_measurement}, state}
+      {:reply, state.current_measurement, state}
     end
   end
 end
