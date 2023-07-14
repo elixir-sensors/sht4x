@@ -65,7 +65,7 @@ defmodule SHT4X do
     raw_reading_temperature: 0,
     temperature_c: 23.0,
     humidity_rh: 50,
-    dew_point_c: 32,
+    dew_point_c: 12.02,
     quality: :unusable
   }
 
@@ -103,10 +103,12 @@ defmodule SHT4X do
   end
 
   @doc """
-  Fetches the latest sample from the sensor's GenServer.
-  NOTE: This does not cause an on-demand read from the sensor.
+  Fetches the latest sample from the sensor's GenServer
+
+  This does not cause an on-demand read from the sensor. Check the `:quality`
+  field for a quick assessment of how much to trust the measurement.
   """
-  @spec get_sample(GenServer.server()) :: SHT4X.Measurement.t() | {:error, :no_data}
+  @spec get_sample(GenServer.server()) :: SHT4X.Measurement.t()
   def get_sample(sensor_ref) do
     GenServer.call(sensor_ref, :get_sample)
   end
