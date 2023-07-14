@@ -5,7 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2023-07-14
+
+### Changed
+
+* SHT4X regularly polls temperature and humidity at 5 second intervals
+  (configurable). Regular polling is required for temperature compensation
+  algorithms.
+* The `SHT4X.measure/1` function is now `SHT4X.get_sample/1` to reflect that it
+  returns the latest sample rather than polling the sensor. The `SHT4X.Measurement`
+  struct contains a timestamp and quality information to indicate how stale it
+  is. Staleness could be due to communication issues with the sensor or just
+  waiting for the next poll time.
+* The sensor's serial number is not polled on init. This means that I2C failures
+  or retry delays won't delay or fail startup. They likely will affect the
+  regular polling if they don't resolve themselves.
+
+### Added
+
+* `SHT4X.serial_number/1` to get the sensor's unique serial number
+* The sensor is immediately polled for a temperature. Previously the first
+  temperature measurement was delayed until the interval timer expired (default 5
+  seconds).
 
 ## [0.1.4] - 2023-02-01
 ### Improvements
@@ -40,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/elixir-sensors/sht4x/compare/v0.1.4..HEAD
+[0.2.0]: https://github.com/elixir-sensors/sht4x/compare/v0.1.4..v0.2.0
 [0.1.4]: https://github.com/elixir-sensors/sht4x/compare/v0.1.3..v0.1.4
 [0.1.3]: https://github.com/elixir-sensors/sht4x/compare/v0.1.2..v0.1.3
 [0.1.2]: https://github.com/elixir-sensors/sht4x/compare/v0.1.1..v0.1.2
