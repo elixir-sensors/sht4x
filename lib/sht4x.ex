@@ -182,7 +182,7 @@ defmodule SHT4X do
              current_raw_measurement: measurement_raw
          }}
 
-      _ ->
+      _error ->
         # Always call the compensation function on the last good raw reading we had, if there is one.
         # Unless the quality of that sample is unusable.
         if state.current_raw_measurement.quality == :unusable do

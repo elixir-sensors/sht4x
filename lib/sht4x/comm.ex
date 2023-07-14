@@ -12,7 +12,7 @@ defmodule SHT4X.Comm do
 
   @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF} | {:error, any()}
   def serial_number(transport) do
-    with {:ok, <<serial::32>>} <- read_data(transport, @cmd_serial_number) do
+    with {:ok, <<serial::32>>} <- read_data(transport, @cmd_serial_number, 1) do
       {:ok, serial}
     end
   end
@@ -37,7 +37,21 @@ defmodule SHT4X.Comm do
   defp delay_ms_for_measure(:high), do: 8
 
   @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::32>>} | {:error, any}
-  defp read_data(transport, command, delay_ms \\ 1) do
+  defp read_data(transport, command, delay_ms) do
+    repeat_transaction(transport, command, delay_ms, transport.retries)
+  end
+
+  defp repeat_transaction(transport, command, delay_ms, retries) do
+    case do_transaction(transport, command, delay_ms) do
+      {:error, _any_reason} when retries > 0 ->
+        repeat_transaction(transport, command, delay_ms, retries - 1)
+
+      result ->
+        result
+    end
+  end
+
+  defp do_transaction(transport, command, delay_ms) do
     with :ok <- transport.write_fn.(command),
          Process.sleep(delay_ms),
          {:ok, binary} <- transport.read_fn.(6) do
