@@ -91,15 +91,7 @@ defmodule SHT4X do
         :stale_threshold
       ])
 
-    case GenServer.start_link(__MODULE__, init_arg, gen_server_opts) do
-      {:ok, sensor_pid} ->
-        # Fire off an initial measurement
-        send(sensor_pid, :do_sample)
-        {:ok, sensor_pid}
-
-      other ->
-        other
-    end
+    GenServer.start_link(__MODULE__, init_arg, gen_server_opts)
   end
 
   @doc """
@@ -142,6 +134,8 @@ defmodule SHT4X do
         transport: transport
       }
 
+      # Request an initial sample and schedule the following ones.
+      send(self(), :do_sample)
       interval = Keyword.get(init_arg, :measurement_interval, @default_interval)
       {:ok, _tref} = :timer.send_interval(interval, :do_sample)
 
