@@ -108,6 +108,14 @@ defmodule SHT4X do
     GenServer.call(sensor_ref, :get_sample)
   end
 
+  @doc """
+  Return the sensor's serial number
+  """
+  @spec serial_number(GenServer.server()) :: {:ok, 0..0xFFFF_FFFF} | :error
+  def serial_number(sensor_ref) do
+    GenServer.call(sensor_ref, :serial_number)
+  end
+
   ## Callbacks
 
   @impl GenServer
@@ -127,33 +135,25 @@ defmodule SHT4X do
       stale_threshold: Keyword.get(init_arg, :repeatability, @default_stale_threshold)
     ]
 
-    with {:ok, transport} <- SHT4X.Transport.new(bus_name, bus_address, options[:retries]),
-         {:ok, serial_number} <- SHT4X.Comm.serial_number(transport) do
-      state = %{
-        options: options,
-        current_measurement: @hardcoded_value,
-        current_raw_measurement: @hardcoded_value,
-        serial_number: serial_number,
-        transport: transport
-      }
+    case SHT4X.Transport.new(bus_name, bus_address, options[:retries]) do
+      {:ok, transport} ->
+        state = %{
+          options: options,
+          current_measurement: @hardcoded_value,
+          current_raw_measurement: @hardcoded_value,
+          transport: transport
+        }
 
-      # Request an initial sample and schedule the following ones.
-      send(self(), :do_sample)
-      interval = Keyword.get(init_arg, :measurement_interval, @default_interval)
-      {:ok, _tref} = :timer.send_interval(interval, :do_sample)
+        # Request an initial sample and schedule the following ones.
+        send(self(), :do_sample)
+        interval = Keyword.get(init_arg, :measurement_interval, @default_interval)
+        {:ok, _tref} = :timer.send_interval(interval, :do_sample)
 
-      Logger.info(
-        "[SHT4X] Initializing | S/N: #{serial_number} | Options: #{inspect(state.options)}"
-      )
+        Logger.info("[SHT4X] Initialized | Options: #{inspect(state.options)}")
+        {:ok, state}
 
-      {:ok, state}
-    else
       {:error, reason} ->
-        Logger.error("[SHT4X] Error connecting to sensor: #{reason}")
-        {:stop, :normal}
-
-      :error ->
-        Logger.error("[SHT4X] Error connecting to sensor")
+        Logger.error("[SHT4X] Error connecting to sensor: #{inspect(reason)}")
         {:stop, :normal}
     end
   end
@@ -205,5 +205,9 @@ defmodule SHT4X do
   @impl GenServer
   def handle_call(:get_sample, _from, state) do
     {:reply, state.current_measurement, state}
+  end
+
+  def handle_call(:serial_number, _from, state) do
+    {:reply, SHT4X.Comm.serial_number(state.transport), state}
   end
 end
