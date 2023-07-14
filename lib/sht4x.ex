@@ -14,18 +14,21 @@ defmodule SHT4X do
 
   @typedoc """
   How "fresh" is the sample we fetched from the sensor's GenServer?
+
   In the event that the sensor fails to report back a measurement during a polling interval, we re-use the last sample.
   If this continues to happen over a time period that exceeds the `:stale_threshold`, we mark the re-used "current" sample as stale.
 
   The possible values can be:
-  - `:fresh` - The sample is less than 60 sec. old
-  - `:stale` - The sample is more than 60 sec. old
-  - `:unusable` - The sample is a hard-coded sample value, and shouldn't be used
+  - `:fresh` - This is a recent sample. See the `:stale_threshold`.
+  - `:stale` - This is an old sample that should be used with caution.
+  - `:unusable` - This is a default sample when no measurements are available.
+  - `:converging` - This is optionally set by the temperature compensation algorithm to indicate that it was recently restarted without historic state information and needs more time to give accurate values
   """
-  @type quality :: :fresh | :stale | :unusable
+  @type quality :: :fresh | :stale | :unusable | :converging
 
   @typedoc """
   SHT4X GenServer start_link options
+
   * `:name` - a name for the GenServer
   * `:bus_name` - which I2C bus to use (e.g., `"i2c-1"`)
   * `:retries` - the number of retries before failing (defaults to 3 retries)
