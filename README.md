@@ -18,7 +18,8 @@ iex> SHT4X.get_sample(sht)
   raw_reading_temperature: 26379,
   temperature_c: 22.38528060913086,
   humidity_rh: 57.131805419921875,
-  dew_point_c: 13.492363250293858
+  dew_point_c: 13.492363250293858,
+  quality: :fresh
 }
 ```
 
