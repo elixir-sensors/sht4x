@@ -7,7 +7,8 @@ defmodule SHT4X.Calc do
   Check the CRC on the temperature/humidity report
 
   The 8-bit CRC checksum transmitted after each data word. See Sensirion docs:
-  * [Data sheet](https://cdn-learn.adafruit.com/assets/assets/000/097/511/original/Sensirion_Gas-Sensors_SGP40_Datasheet.pdf) - Section 4
+
+  * [Datasheet](https://developer.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf)
   * https://github.com/Sensirion/embedded-common/blob/1ac7c72c895d230c6f1375865f3b7161ce6b665a/sensirion_common.c#L60
 
   ## Examples

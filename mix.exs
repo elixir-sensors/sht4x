@@ -3,7 +3,7 @@ defmodule SHT4X.MixProject do
 
   @version "0.1.4"
   @source_url "https://github.com/elixir-sensors/sht4x"
-  @sht4x_datasheet_url "https://cdn-learn.adafruit.com/assets/assets/000/099/223/original/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf"
+  @sht4x_datasheet_url "https://developer.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf"
 
   def project do
     [
@@ -78,7 +78,7 @@ defmodule SHT4X.MixProject do
       licenses: ["MIT"],
       links: %{
         "GitHub" => @source_url,
-        "Data sheet" => @sht4x_datasheet_url
+        "Datasheet" => @sht4x_datasheet_url
       }
     }
   end
