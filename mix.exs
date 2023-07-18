@@ -39,11 +39,14 @@ defmodule SHT4X.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:circuits_i2c, "~> 1.0"},
+      {:circuits_i2c, "~> 1.0 or ~> 2.0.0-pre.0"},
+      {:circuits_sim,
+       github: "elixir-circuits/circuits_sim",
+       sha: "d2efb89312335e91c4c6f8da6e3f53cba2b21512",
+       only: [:dev, :test]},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.28", only: :docs, runtime: false},
-      {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:cerlc, "~> 0.2.0"},
       {:typed_struct, "~> 0.3.0"}
     ]
