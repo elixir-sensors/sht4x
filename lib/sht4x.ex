@@ -10,7 +10,7 @@ defmodule SHT4X do
   @typedoc """
   Compensation callback function
   """
-  @type compensation_callback :: (SHT4X.Measurement.t() -> SHT4X.Measurement.t()) | nil
+  @type compensation_callback :: (SHT4X.Measurement.t() -> SHT4X.Measurement.t())
 
   @typedoc """
   How "fresh" is the sample we fetched from the sensor's GenServer?
