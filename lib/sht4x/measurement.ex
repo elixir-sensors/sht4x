@@ -6,9 +6,9 @@ defmodule SHT4X.Measurement do
   use TypedStruct
 
   typedstruct do
-    field(:dew_point_c, number)
-    field(:humidity_rh, number, enforce: true)
-    field(:temperature_c, number, enforce: true)
+    field(:dew_point_c, float)
+    field(:humidity_rh, float, enforce: true)
+    field(:temperature_c, float, enforce: true)
     field(:raw_reading_temperature, integer, enforce: true)
     field(:raw_reading_humidity, integer, enforce: true)
     field(:timestamp_ms, integer, enforce: true)

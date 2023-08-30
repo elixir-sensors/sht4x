@@ -37,7 +37,7 @@ defmodule SHT4X.Calc do
       iex> SHT4X.Calc.dew_point(50, 22.0) |> round()
       11
   """
-  @spec dew_point(number(), number()) :: float()
+  @spec dew_point(float(), float()) :: float()
   def dew_point(humidity_rh, temperature_c) when is_number(humidity_rh) and humidity_rh > 0 do
     log_rh = :math.log(humidity_rh / 100)
     t = temperature_c
