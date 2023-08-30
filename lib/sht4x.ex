@@ -67,7 +67,7 @@ defmodule SHT4X do
     raw_reading_humidity: 0,
     raw_reading_temperature: 0,
     temperature_c: 23.0,
-    humidity_rh: 50,
+    humidity_rh: 50.0,
     dew_point_c: 12.02,
     quality: :unusable
   }
