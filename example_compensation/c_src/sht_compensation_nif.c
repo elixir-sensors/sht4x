@@ -3,8 +3,6 @@
 
 #include <string.h>
 
-#define DATA_SIZE (sizeof(v) / sizeof(float))
-
 static ERL_NIF_TERM atom_ok;
 
 static ERL_NIF_TERM compensate(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
@@ -34,46 +32,35 @@ static ERL_NIF_TERM compensate(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv
 
 static ERL_NIF_TERM get_state(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
-    ERL_NIF_TERM term_list[DATA_SIZE];
+    ERL_NIF_TERM term;
 
-    for (size_t i = 0; i < DATA_SIZE; i++)
-        term_list[i] = enif_make_double(env, v[i]);
+    unsigned char *raw_binary = enif_make_new_binary(env, sizeof(v), &term);
+    memcpy(raw_binary, v, sizeof(v));
 
-    return enif_make_list_from_array(env, term_list, DATA_SIZE);
+    return term;
 }
 
 static ERL_NIF_TERM set_state(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
-    ERL_NIF_TERM list = argv[0];
+    ErlNifBinary input_binary;
 
-    for (size_t i = 0; i < DATA_SIZE; i++) {
-        ERL_NIF_TERM head;
-        ERL_NIF_TERM tail;
-        double value;
+    if (!enif_inspect_binary(env, argv[0], &input_binary))
+        return enif_make_badarg(env);
 
-        if (!enif_get_list_cell(env, list, &head, &tail) ||
-            !enif_get_double(env, head, &value))
-            return enif_make_badarg(env);
-
-        v[i] = value;
-        list = tail;
-    }
-
+    memcpy(v, input_binary.data, sizeof(v));
     return atom_ok;
 }
 
 static ERL_NIF_TERM reset_state(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
-    for (size_t i = 0; i < DATA_SIZE; i++)
-        v[i] = 0;
+    memset(v, 0, sizeof(v));
 
     return atom_ok;
 }
 
 static int nif_load(ErlNifEnv *env, void **priv_data, ERL_NIF_TERM info)
 {
-    for (size_t i = 0; i < DATA_SIZE; i++)
-        v[i] = 0;
+    memset(v, 0, sizeof(v));
 
     atom_ok = enif_make_atom(env, "ok");
     return 0;
