@@ -3,9 +3,10 @@ defmodule ExampleCompensationTest do
   doctest ExampleCompensation
 
   defp new_state(temperature_offset, humidity_offset) do
-    # See the NIF for how the example compensator adds the first state
+    # See the sht_compensation.c for how the example compensator adds the first state
     # entry to the temperature and the second to the humidity.
-    [:erlang.float(temperature_offset), :erlang.float(humidity_offset)] ++ List.duplicate(0.0, 23)
+    <<temperature_offset::native-float-32, humidity_offset::native-float-32,
+      0::integer-size(736)>>
   end
 
   defp new_measurement(temperature_c, humidity_rh) do

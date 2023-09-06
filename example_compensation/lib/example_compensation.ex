@@ -4,9 +4,9 @@ defmodule ExampleCompensation do
   """
 
   @typedoc """
-  The internal compensation state is kept as a list of floats.
+  The internal compensation state is kept as a binary.
   """
-  @type state() :: [float()]
+  @type state() :: binary()
 
   @doc """
   Pass this function to `SHT4X.start_link` using the `:compensation_callback` option
