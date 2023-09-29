@@ -41,6 +41,7 @@ defmodule SHT4X.MixProject do
     [
       {:circuits_i2c, "~> 1.0"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:credo_binary_patterns, "~> 0.2.2", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.28", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},

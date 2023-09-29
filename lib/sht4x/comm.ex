@@ -13,7 +13,7 @@ defmodule SHT4X.Comm do
   def serial_number(transport) do
     case read_data(transport, @cmd_serial_number) do
       {:ok, <<data1::16, _crc1, data2::16, _crc2>>} ->
-        <<value::unsigned-big-32>> = <<data1::16, data2::16>>
+        <<value::32>> = <<data1::16, data2::16>>
         {:ok, value}
 
       _ ->
