@@ -20,7 +20,9 @@ defmodule SHT4X.MixProject do
       preferred_cli_env: %{
         docs: :docs,
         "hex.publish": :docs,
-        "hex.build": :docs
+        "hex.build": :docs,
+        credo: :lint,
+        dialyzer: :lint
       }
     ]
   end
@@ -40,11 +42,10 @@ defmodule SHT4X.MixProject do
   defp deps do
     [
       {:circuits_i2c, "~> 1.0"},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:credo_binary_patterns, "~> 0.2.2", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6", only: :lint, runtime: false},
+      {:credo_binary_patterns, "~> 0.2.2", only: :lint, runtime: false},
+      {:dialyxir, "~> 1.1", only: :lint, runtime: false},
       {:ex_doc, "~> 0.28", only: :docs, runtime: false},
-      {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:cerlc, "~> 0.2.0"},
       {:typed_struct, "~> 0.3.0"}
     ]
