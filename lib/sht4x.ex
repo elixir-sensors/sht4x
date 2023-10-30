@@ -116,6 +116,14 @@ defmodule SHT4X do
     GenServer.call(sensor_ref, :serial_number)
   end
 
+  @doc """
+  Send a soft reset command to the sensor
+  """
+  @spec soft_reset(GenServer.server()) :: :ok | :error
+  def soft_reset(sensor_ref) do
+    GenServer.call(sensor_ref, :soft_reset)
+  end
+
   ## Callbacks
 
   @impl GenServer
@@ -209,5 +217,9 @@ defmodule SHT4X do
 
   def handle_call(:serial_number, _from, state) do
     {:reply, SHT4X.Comm.serial_number(state.transport), state}
+  end
+
+  def handle_call(:soft_reset, _from, state) do
+    {:reply, SHT4X.Comm.soft_reset(state.transport), state}
   end
 end

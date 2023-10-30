@@ -8,6 +8,7 @@ defmodule SHT4X.Comm do
   @cmd_measure_high_repeatability <<0xFD>>
   @cmd_measure_medium_repeatability <<0xF6>>
   @cmd_measure_low_repeatability <<0xE0>>
+  @cmd_soft_reset <<0x94>>
 
   @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF} | :error
   def serial_number(transport) do
@@ -19,6 +20,11 @@ defmodule SHT4X.Comm do
       _ ->
         :error
     end
+  end
+
+  @spec soft_reset(Transport.t()) :: :ok | :error
+  def soft_reset(transport) do
+    transport.write_fn.(@cmd_soft_reset)
   end
 
   @spec measure(Transport.t(), keyword) :: {:ok, <<_::48>>} | :error
