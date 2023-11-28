@@ -21,7 +21,7 @@ defmodule SHT4X do
   The possible values can be:
   - `:fresh` - This is a recent sample. See the `:stale_threshold`.
   - `:stale` - This is an old sample that should be used with caution.
-  - `:unusable` - This is a default sample when no measurements are available.
+  - `:unusable` - This is a default sample when no measurements are available, or, the sensor is giving know bad values (see: https://github.com/elixir-sensors/sht4x/issues/29)
   - `:converging` - This is optionally set by the temperature compensation algorithm to indicate that it was recently restarted without historic state information and needs more time to give accurate values
   """
   @type quality :: :fresh | :stale | :unusable | :converging
