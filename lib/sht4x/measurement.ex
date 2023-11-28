@@ -6,13 +6,14 @@ defmodule SHT4X.Measurement do
 
   use TypedStruct
 
-  # Raw readings that, when converted, equate to the min and max operating ranges of Rh and temp
-  # [0 - 100] for Rh and [-40 - 125] for temp
-  @min_range_rh 0x0C4A
-  @max_range_rh 0xD914
+  # Raw readings that, when converted, equate to the min and max operating
+  # ranges of Rh and temp [0 - 100] for Rh and [-40 - 125] for temperature.
+  # Expand range by 1 to avoid ceiling/floor issues.
+  @min_raw_rh 0x0C4A - 1
+  @max_raw_rh 0xD915 + 1
 
-  @min_range_t 0x0751
-  @max_range_t 0xF8AD
+  @min_raw_t 0x0750 - 1
+  @max_raw_t 0xF8AE + 1
 
   typedstruct do
     field(:dew_point_c, float)
@@ -38,7 +39,7 @@ defmodule SHT4X.Measurement do
       make_measurement(raw_t, raw_rh, timestamp_ms)
     else
       # Raw readings invalid, don't even attempt to convert them
-      Logger.warning("Your sensor is returning values that could indicate it is damaged!")
+      Logger.warning("Your SHT4X is returning values that could indicate it is damaged!")
 
       __struct__(
         temperature_c: 0.0,
@@ -53,8 +54,8 @@ defmodule SHT4X.Measurement do
   end
 
   defp make_measurement(raw_t, raw_rh, timestamp_ms) do
-    temperature_c = temperature_c_from_raw(raw_t)
-    humidity_rh = humidity_rh_from_raw(raw_rh)
+    temperature_c = raw_to_temperature_c(raw_t)
+    humidity_rh = raw_to_humidity_rh(raw_rh)
 
     __struct__(
       temperature_c: temperature_c,
@@ -67,12 +68,24 @@ defmodule SHT4X.Measurement do
     )
   end
 
-  defp humidity_rh_from_raw(raw_rh) do
+  @spec raw_to_humidity_rh(0..0xFFFF) :: float()
+  def raw_to_humidity_rh(raw_rh) do
     -6 + 125 * raw_rh / (0xFFFF - 1)
   end
 
-  defp temperature_c_from_raw(raw_t) do
+  @spec humidity_rh_to_raw(float()) :: integer()
+  def humidity_rh_to_raw(rh) do
+    round((rh + 6) / 125 * (0xFFFF - 1))
+  end
+
+  @spec raw_to_temperature_c(0..0xFFFF) :: float()
+  def raw_to_temperature_c(raw_t) do
     -45 + 175 * raw_t / (0xFFFF - 1)
+  end
+
+  @spec temperature_c_to_raw(float()) :: integer()
+  def temperature_c_to_raw(t) do
+    round((t + 45) / 175 * (0xFFFF - 1))
   end
 
   # Function to check the raw values read from the sensor
@@ -81,9 +94,8 @@ defmodule SHT4X.Measurement do
   defp raw_reading_valid?(0x8001, 0x8000), do: false
 
   # Ensure raw values would be within min/max operating ranges
-  defp raw_reading_valid?(raw_t, raw_rh)
-       when raw_rh not in @min_range_rh..@max_range_rh or raw_t not in @min_range_t..@max_range_t,
-       do: false
+  defp raw_reading_valid?(t, _rh) when t not in @min_raw_t..@max_raw_t, do: false
+  defp raw_reading_valid?(_t, rh) when rh not in @min_raw_rh..@max_raw_rh, do: false
 
-  defp raw_reading_valid?(_raw_t, _raw_rh), do: true
+  defp raw_reading_valid?(_t, _rh), do: true
 end

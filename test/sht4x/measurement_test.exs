@@ -35,4 +35,11 @@ defmodule SHT4X.MeasurementTest do
     result = Measurement.from_raw(<<0xFF, 0xFF, 172, 109, 229, 160>>)
     assert result.quality == :unusable
   end
+
+  test "converts boundary values to expected raw values" do
+    assert Measurement.humidity_rh_to_raw(0) == 0xC4A
+    assert Measurement.humidity_rh_to_raw(100) == 0xD915
+    assert Measurement.temperature_c_to_raw(-40) == 0x750
+    assert Measurement.temperature_c_to_raw(125) == 0xF8AE
+  end
 end
