@@ -41,7 +41,7 @@ defmodule SHT4X.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:circuits_i2c, "~> 1.0"},
+      {:circuits_i2c, "~> 2.0 or ~> 1.0"},
       {:credo, "~> 1.6", only: :lint, runtime: false},
       {:credo_binary_patterns, "~> 0.2.2", only: :lint, runtime: false},
       {:dialyxir, "~> 1.1", only: :lint, runtime: false},
