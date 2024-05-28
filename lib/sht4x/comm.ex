@@ -12,7 +12,7 @@ defmodule SHT4X.Comm do
 
   @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF} | :error
   def serial_number(transport) do
-    case read_data(transport, @cmd_serial_number) do
+    case read_data(transport, @cmd_serial_number, transport.retries) do
       {:ok, <<data1::16, _crc1, data2::16, _crc2>>} ->
         <<value::32>> = <<data1::16, data2::16>>
         {:ok, value}
@@ -35,7 +35,12 @@ defmodule SHT4X.Comm do
 
   @spec do_measure(Transport.t(), :low | :medium | :high) :: {:ok, <<_::48>>} | :error
   defp do_measure(transport, repeatability) do
-    read_data(transport, cmd_measure(repeatability), delay_ms_for_measure(repeatability))
+    read_data(
+      transport,
+      cmd_measure(repeatability),
+      transport.retries,
+      delay_ms_for_measure(repeatability)
+    )
   end
 
   defp cmd_measure(:low), do: @cmd_measure_low_repeatability
@@ -46,15 +51,26 @@ defmodule SHT4X.Comm do
   defp delay_ms_for_measure(:medium), do: 4
   defp delay_ms_for_measure(:high), do: 8
 
-  @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::48>>} | :error
-  defp read_data(transport, command, delay_ms \\ 1) do
+  @spec read_data(Transport.t(), iodata, non_neg_integer(), non_neg_integer()) ::
+          {:ok, <<_::48>>} | :error
+  defp read_data(transport, command, retries_remaining, delay_ms \\ 1)
+
+  defp read_data(_transport, _command, retries_remaining, _delay_ms) when retries_remaining < 0,
+    do: :error
+
+  defp read_data(transport, command, retries_remaining, delay_ms) do
     with :ok <- transport.write_fn.(command),
          :ok <- Process.sleep(delay_ms),
          {:ok, binary} <- transport.read_fn.(6),
-         true <- Calc.crc_ok?(binary) do
+         :crc_ok <- Calc.crc_ok?(binary) do
       {:ok, binary}
     else
-      _ -> :error
+      :crc_fail ->
+        # We will attempt to re-read from the sensor in the event the CRC check fails
+        read_data(transport, command, retries_remaining - 1, delay_ms)
+
+      _ ->
+        :error
     end
   end
 end

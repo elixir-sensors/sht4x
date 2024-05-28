@@ -14,14 +14,18 @@ defmodule SHT4X.Calc do
   ## Examples
 
       iex> SHT4X.Calc.crc_ok?(<<0xBEEF::16, 0x92, 0x8000::16, 0xA2>>)
-      true
+      :crc_ok
 
       iex> SHT4X.Calc.crc_ok?(<<0xBEEF::16, 0x92, 0x8000::16, 0xA3>>)
-      false
+      :crc_fail
   """
-  @spec crc_ok?(<<_::48>>) :: boolean()
+  @spec crc_ok?(<<_::48>>) :: :crc_ok | :crc_fail
   def crc_ok?(<<raw_t::binary-size(2), crc1, raw_rh::binary-size(2), crc2>>) do
-    crc1 == crc(raw_t) and crc2 == crc(raw_rh)
+    if crc1 == crc(raw_t) and crc2 == crc(raw_rh) do
+      :crc_ok
+    else
+      :crc_fail
+    end
   end
 
   defp crc(bytes) do
