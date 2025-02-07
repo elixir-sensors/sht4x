@@ -13,15 +13,19 @@ defmodule SHT4X.Calc do
 
   ## Examples
 
-      iex> SHT4X.Calc.crc_ok?(<<0xBEEF::16, 0x92, 0x8000::16, 0xA2>>)
-      true
+      iex> SHT4X.Calc.validate_crc(<<0xBEEF::16, 0x92, 0x8000::16, 0xA2>>)
+      :ok
 
-      iex> SHT4X.Calc.crc_ok?(<<0xBEEF::16, 0x92, 0x8000::16, 0xA3>>)
-      false
+      iex> SHT4X.Calc.validate_crc(<<0xBEEF::16, 0x92, 0x8000::16, 0xA3>>)
+      {:error, :crc_mismatch}
   """
-  @spec crc_ok?(<<_::48>>) :: boolean()
-  def crc_ok?(<<raw_t::binary-size(2), crc1, raw_rh::binary-size(2), crc2>>) do
-    crc1 == crc(raw_t) and crc2 == crc(raw_rh)
+  @spec validate_crc(<<_::48>>) :: :ok | {:error, :crc_mismatch}
+  def validate_crc(<<raw_t::binary-size(2), crc1, raw_rh::binary-size(2), crc2>>) do
+    if crc1 == crc(raw_t) and crc2 == crc(raw_rh) do
+      :ok
+    else
+      {:error, :crc_mismatch}
+    end
   end
 
   defp crc(bytes) do
