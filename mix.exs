@@ -10,7 +10,7 @@ defmodule SHT4X.MixProject do
       app: :sht4x,
       version: @version,
       description: description(),
-      elixir: "~> 1.11",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
