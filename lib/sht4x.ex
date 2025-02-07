@@ -111,7 +111,7 @@ defmodule SHT4X do
   @doc """
   Return the sensor's serial number
   """
-  @spec serial_number(GenServer.server()) :: {:ok, 0..0xFFFF_FFFF} | :error
+  @spec serial_number(GenServer.server()) :: {:ok, 0..0xFFFF_FFFF} | {:error, any()}
   def serial_number(sensor_ref) do
     GenServer.call(sensor_ref, :serial_number)
   end
@@ -119,7 +119,7 @@ defmodule SHT4X do
   @doc """
   Send a soft reset command to the sensor
   """
-  @spec soft_reset(GenServer.server()) :: :ok | :error
+  @spec soft_reset(GenServer.server()) :: :ok | {:error, any()}
   def soft_reset(sensor_ref) do
     GenServer.call(sensor_ref, :soft_reset)
   end
