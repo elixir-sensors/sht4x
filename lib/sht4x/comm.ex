@@ -10,15 +10,10 @@ defmodule SHT4X.Comm do
   @cmd_measure_low_repeatability <<0xE0>>
   @cmd_soft_reset <<0x94>>
 
-  @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF} | :error
+  @spec serial_number(Transport.t()) :: {:ok, 0..0xFFFF_FFFF} | {:error, any()}
   def serial_number(transport) do
-    case read_data(transport, @cmd_serial_number) do
-      {:ok, <<data1::16, _crc1, data2::16, _crc2>>} ->
-        <<value::32>> = <<data1::16, data2::16>>
-        {:ok, value}
-
-      _ ->
-        :error
+    with {:ok, <<serial::32>>} <- read_data(transport, @cmd_serial_number) do
+      {:ok, serial}
     end
   end
 
@@ -27,14 +22,9 @@ defmodule SHT4X.Comm do
     transport.write_fn.(@cmd_soft_reset)
   end
 
-  @spec measure(Transport.t(), keyword) :: {:ok, <<_::48>>} | {:error, any()}
+  @spec measure(Transport.t(), keyword) :: {:ok, <<_::32>>} | {:error, any()}
   def measure(transport, opts) do
     repeatability = opts[:repeatability]
-    do_measure(transport, repeatability)
-  end
-
-  @spec do_measure(Transport.t(), :low | :medium | :high) :: {:ok, <<_::48>>} | {:error, any()}
-  defp do_measure(transport, repeatability) do
     read_data(transport, cmd_measure(repeatability), delay_ms_for_measure(repeatability))
   end
 
@@ -46,13 +36,12 @@ defmodule SHT4X.Comm do
   defp delay_ms_for_measure(:medium), do: 4
   defp delay_ms_for_measure(:high), do: 8
 
-  @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::48>>} | {:error, any}
+  @spec read_data(Transport.t(), iodata, non_neg_integer()) :: {:ok, <<_::32>>} | {:error, any}
   defp read_data(transport, command, delay_ms \\ 1) do
     with :ok <- transport.write_fn.(command),
          Process.sleep(delay_ms),
-         {:ok, binary} <- transport.read_fn.(6),
-         :ok <- Calc.validate_crc(binary) do
-      {:ok, binary}
+         {:ok, binary} <- transport.read_fn.(6) do
+      Calc.extract_payload(binary)
     end
   end
 end

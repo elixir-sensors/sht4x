@@ -4,7 +4,7 @@ defmodule SHT4X.Calc do
   @crc_alg :cerlc.init(:crc8_sensirion)
 
   @doc """
-  Check the CRC on the temperature/humidity report
+  Check CRCs and extract the payload from SHT4X responses
 
   The 8-bit CRC checksum transmitted after each data word. See Sensirion docs:
 
@@ -13,16 +13,16 @@ defmodule SHT4X.Calc do
 
   ## Examples
 
-      iex> SHT4X.Calc.validate_crc(<<0xBEEF::16, 0x92, 0x8000::16, 0xA2>>)
-      :ok
+      iex> SHT4X.Calc.extract_payload(<<0xBEEF::16, 0x92, 0x8000::16, 0xA2>>)
+      {:ok, <<0xBEEF8000::32>>}
 
-      iex> SHT4X.Calc.validate_crc(<<0xBEEF::16, 0x92, 0x8000::16, 0xA3>>)
+      iex> SHT4X.Calc.extract_payload(<<0xBEEF::16, 0x92, 0x8000::16, 0xA3>>)
       {:error, :crc_mismatch}
   """
-  @spec validate_crc(<<_::48>>) :: :ok | {:error, :crc_mismatch}
-  def validate_crc(<<raw_t::binary-size(2), crc1, raw_rh::binary-size(2), crc2>>) do
-    if crc1 == crc(raw_t) and crc2 == crc(raw_rh) do
-      :ok
+  @spec extract_payload(<<_::48>>) :: {:ok, <<_::32>>} | {:error, :crc_mismatch}
+  def extract_payload(<<val1::2-bytes, crc1, val2::2-bytes, crc2>>) do
+    if crc1 == crc(val1) and crc2 == crc(val2) do
+      {:ok, <<val1::2-bytes, val2::2-bytes>>}
     else
       {:error, :crc_mismatch}
     end
