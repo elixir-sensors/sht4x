@@ -32,7 +32,7 @@ defmodule SHT4X.Measurement do
   interpreted temperature and humidity.  It does not apply any compensation so
   this is real temperature and humidity detected.
   """
-  def from_raw(<<raw_t::16, _crc1, raw_rh::16, _crc2>>) do
+  def from_raw(<<raw_t::16, raw_rh::16>>) do
     timestamp_ms = System.monotonic_time(:millisecond)
 
     if raw_reading_valid?(raw_t, raw_rh) do
