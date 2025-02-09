@@ -42,9 +42,9 @@ defmodule SHT4XTest do
     SHT4XSim.set_temperature_c(@i2c_bus, @i2c_address, 11.1)
     SHT4XSim.set_humidity_rh(@i2c_bus, @i2c_address, 33.3)
 
-    # Each transaction gets 2 CRC errors. 1 try + 3 retries = 4 transactions
-    # that need to be messed up.  Therefore, 7 or more CRC errors are needed.
-    SHT4XSim.inject_crc_errors(@i2c_bus, @i2c_address, 7)
+    # Each transaction gets 2 CRC errors. 1 try + 2 retries = 3 transactions
+    # that need to be messed up.  Therefore, 5 or more CRC errors are needed.
+    SHT4XSim.inject_crc_errors(@i2c_bus, @i2c_address, 5)
 
     measurement = SHT4X.get_sample(sht_pid)
     assert measurement.quality == :unusable
