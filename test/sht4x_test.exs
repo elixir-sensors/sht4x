@@ -9,6 +9,7 @@ defmodule SHT4XTest do
 
   setup do
     SHT4XSim.inject_crc_errors(@i2c_bus, @i2c_address, 0)
+    SHT4XSim.set_broken(@i2c_bus, @i2c_address, nil)
   end
 
   test "reading the temperature and humidity via the simulator" do
@@ -68,5 +69,14 @@ defmodule SHT4XTest do
 
     measurement = SHT4X.get_sample(sht_pid)
     assert_in_delta measurement.temperature_c, 21.0, 0.1
+  end
+
+  test "handling errors" do
+    sht_pid = start_supervised!(SHT4X)
+
+    SHT4XSim.set_broken(@i2c_bus, @i2c_address, {:error, :enxio})
+
+    measurement = SHT4X.get_sample(sht_pid)
+    assert measurement.quality == :unusable
   end
 end
