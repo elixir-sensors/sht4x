@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2024-02-11
+
+### Changed
+
+* Changed error returns to return `{:error, reason}` rather than just `:error`.
+  This is a backwards incompatible change if your code matches on `:error`.
+* Changed retry semantics to only retry on CRC mismatch errors. Previously, CRC
+  mismatches were not retried and retries were done at the I2C transaction
+  level. Retrying on the I2C level wasn't effective and ended up causing long
+  delays. So far, CRC errors are the ones worth retrying since they happen rare
+  enough that a retry is pretty much guaranteed to work.
+
 ## [0.2.3] - 2024-01-16
 
 ### Changed
@@ -82,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
+[0.3.0]: https://github.com/elixir-sensors/sht4x/compare/v0.2.3..v0.3.0
 [0.2.3]: https://github.com/elixir-sensors/sht4x/compare/v0.2.2..v0.2.3
 [0.2.2]: https://github.com/elixir-sensors/sht4x/compare/v0.2.1..v0.2.2
 [0.2.1]: https://github.com/elixir-sensors/sht4x/compare/v0.2.0..v0.2.1
