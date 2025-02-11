@@ -43,7 +43,8 @@ defmodule SHT4X.Comm do
 
   defp repeat_transaction(transport, command, delay_ms, retries) do
     case do_transaction(transport, command, delay_ms) do
-      {:error, _any_reason} when retries > 0 ->
+      # only retry in the event of a CRC mismatch
+      {:error, :crc_mismatch} when retries > 0 ->
         repeat_transaction(transport, command, delay_ms, retries - 1)
 
       result ->
