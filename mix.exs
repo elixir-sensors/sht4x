@@ -75,10 +75,12 @@ defmodule SHT4X.MixProject do
         "test",
         "mix.exs",
         "README.md",
-        "LICENSE",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+        "LICENSES",
+        "NOTICE",
+        "REUSE.toml"
       ],
-      licenses: ["MIT"],
+      licenses: ["Apache-2.0"],
       links: %{
         "GitHub" => @source_url,
         "Datasheet" => @sht4x_datasheet_url
