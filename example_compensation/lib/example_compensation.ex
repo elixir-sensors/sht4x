@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2023 Digit
+# SPDX-FileCopyrightText: 2023 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ExampleCompensation do
   @moduledoc """
   Example NIF to run temperature/humidity compensation

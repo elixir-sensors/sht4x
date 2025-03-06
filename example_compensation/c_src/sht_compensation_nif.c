@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2023 Digit
+// SPDX-FileCopyrightText: 2023 Frank Hunleth
+//
+// SPDX-License-Identifier: Apache-2.0
+//
 #include "erl_nif.h"
 #include "sht_compensation.h"
 

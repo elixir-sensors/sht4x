@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Digit
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 # Example Compensation NIF
 
 Temperature and humidity compensation alters measurements from SHT4x sensors to

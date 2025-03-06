@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2023 Digit
+# SPDX-FileCopyrightText: 2023 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule ExampleCompensationTest do
   use ExUnit.Case
   doctest ExampleCompensation
