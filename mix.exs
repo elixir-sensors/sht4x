@@ -3,6 +3,7 @@ defmodule SHT4X.MixProject do
 
   @version "0.3.0"
   @source_url "https://github.com/elixir-sensors/sht4x"
+  @reuse_compliance_url "https://api.reuse.software/info/github.com/elixir-sensors/sht4x"
   @sht4x_datasheet_url "https://developer.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf"
 
   def project do
@@ -75,12 +76,15 @@ defmodule SHT4X.MixProject do
         "test",
         "mix.exs",
         "README.md",
-        "LICENSE",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+        "LICENSES",
+        "NOTICE",
+        "REUSE.toml"
       ],
-      licenses: ["MIT"],
+      licenses: ["Apache-2.0"],
       links: %{
         "GitHub" => @source_url,
+        "REUSE compliance" => @reuse_compliance_url,
         "Datasheet" => @sht4x_datasheet_url
       }
     }

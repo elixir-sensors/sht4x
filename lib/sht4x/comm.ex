@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+# SPDX-FileCopyrightText: 2023 Digit
+# SPDX-FileCopyrightText: 2023 Frank Hunleth
+# SPDX-FileCopyrightText: 2025 Connor Rigby
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule SHT4X.Comm do
   @moduledoc false
 
