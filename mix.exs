@@ -1,7 +1,7 @@
 defmodule SHT4X.MixProject do
   use Mix.Project
 
-  @version "0.3.0"
+  @version "0.3.1"
   @source_url "https://github.com/elixir-sensors/sht4x"
   @reuse_compliance_url "https://api.reuse.software/info/github.com/elixir-sensors/sht4x"
   @sht4x_datasheet_url "https://developer.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT4x_Datasheet.pdf"
