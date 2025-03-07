@@ -22,7 +22,8 @@ SPDX-License-Identifier = "CC0-1.0"
 
 [[annotations]]
 path = [
- "README.md"
+ "README.md",
+ "example_compensation/README.md"
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2021 Masatoshi Nishiguchi"
