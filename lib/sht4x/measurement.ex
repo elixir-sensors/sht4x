@@ -95,9 +95,18 @@ defmodule SHT4X.Measurement do
   end
 
   # Function to check the raw values read from the sensor
-  # A few bad values are known: 0x8000 and 0x8001 (according to Sensirion)
-  defp raw_reading_valid?(0x8000, 0x8000), do: false
-  defp raw_reading_valid?(0x8001, 0x8000), do: false
+  #
+  # A few bad values are known to exist on sensors that otherwise look like
+  # they're working. These correspond to around 40C and 55% rh, so they're unlikely,
+  # but not obviously broken. Seen bad temperature and humidity raw values are:
+  #
+  #   - 0x8000, 0x8000
+  #   - 0x8001, 0x8000
+  #   - 0x8002, 0x8002
+  #   - 0x8003, 0x8002
+  defp raw_reading_valid?(t, rh)
+       when t >= 0x8000 and t <= 0x8003 and rh >= 0x8000 and rh <= 0x8003,
+       do: false
 
   # Ensure raw values would be within min/max operating ranges
   defp raw_reading_valid?(t, _rh) when t not in @min_raw_t..@max_raw_t, do: false

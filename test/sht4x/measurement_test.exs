@@ -31,6 +31,11 @@ defmodule SHT4X.MeasurementTest do
     assert result.quality == :unusable
   end
 
+  test "detects possible damaged sensor by looking for 0x8003 in raw Temp value, and 0x8002 in raw Rh value" do
+    result = Measurement.from_raw(<<128, 3, 128, 2>>)
+    assert result.quality == :unusable
+  end
+
   test "detects possible damaged sensor by looking for values outside of operating range (Rh)" do
     result = Measurement.from_raw(<<101, 233, 0xFF, 0xFF>>)
     assert result.quality == :unusable
