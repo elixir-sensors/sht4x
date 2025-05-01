@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2025-05-01
+
+### Changed
+
+* Add more magic numbers (0x8002/0x8003) that indicate a bad measurement from
+  the sensor and should be dropped. The magic numbers are theoretically possible
+  measurements, but in most places on Earth, they should be rare and when
+  they've popped up, they indicate a broken sensor.
+
 ## [0.3.1] - 2025-03-08
 
 ### Changed
