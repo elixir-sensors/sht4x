@@ -174,30 +174,47 @@ defmodule SHT4X do
 
   @impl GenServer
   def handle_info(:do_sample, state) do
+    event_name = [:sht4x, :measure]
+
+    event_name
+    |> :telemetry.span(%{}, fn ->
+      state.transport
+      |> SHT4X.Comm.measure(state.options)
+      |> process_measurement(state)
+      |> report_telemetry(event_name)
+    end)
+    |> then(&{:noreply, &1})
+  end
+
+  defp process_measurement({:ok, data}, state) do
+    measurement_raw = SHT4X.Measurement.from_raw(data)
     compensation_callback = state.options[:compensation_callback]
+    measurement_compensated = compensation_callback.(measurement_raw)
 
-    case SHT4X.Comm.measure(state.transport, state.options) do
-      {:ok, data} ->
-        measurement_raw = SHT4X.Measurement.from_raw(data)
-        measurement_compensated = compensation_callback.(measurement_raw)
+    %{
+      state
+      | current_measurement: measurement_compensated,
+        current_raw_measurement: measurement_raw
+    }
+  end
 
-        {:noreply,
-         %{
-           state
-           | current_measurement: measurement_compensated,
-             current_raw_measurement: measurement_raw
-         }}
-
-      _error ->
-        # Always call the compensation function on the last good raw reading we had, if there is one.
-        # Unless the quality of that sample is unusable.
-        if state.current_raw_measurement.quality == :unusable do
-          {:noreply, state}
-        else
-          measurement_compensated = compensation_callback.(state.current_raw_measurement)
-          check_staleness(state, measurement_compensated)
-        end
+  defp process_measurement(_error, state) do
+    # Always call the compensation function on the last good raw reading we had, if there is one.
+    # Unless the quality of that sample is unusable.
+    if state.current_raw_measurement.quality == :unusable do
+      state
+    else
+      compensation_callback = state.options[:compensation_callback]
+      measurement_compensated = compensation_callback.(state.current_raw_measurement)
+      check_staleness(state, measurement_compensated)
     end
+  end
+
+  defp report_telemetry(state, event_name) do
+    telemetry_measurements = Map.take(state, [:current_measurement, :current_raw_measurement])
+    telemetry_metadata = %{system_time: System.monotonic_time()}
+    :telemetry.execute(event_name, telemetry_measurements, telemetry_metadata)
+    {state, %{}}
   end
 
   defp check_staleness(state, measurement_compensated) do
@@ -205,14 +222,13 @@ defmodule SHT4X do
 
     if now - measurement_compensated.timestamp_ms >= state.options[:stale_threshold] do
       # Mark the current samples as stale
-      {:noreply,
-       %{
-         state
-         | current_measurement: %{measurement_compensated | quality: :stale},
-           current_raw_measurement: %{state.current_raw_measurement | quality: :stale}
-       }}
+      %{
+        state
+        | current_measurement: %{measurement_compensated | quality: :stale},
+          current_raw_measurement: %{state.current_raw_measurement | quality: :stale}
+      }
     else
-      {:noreply, %{state | current_measurement: measurement_compensated}}
+      %{state | current_measurement: measurement_compensated}
     end
   end
 

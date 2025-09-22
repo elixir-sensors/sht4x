@@ -49,7 +49,8 @@ defmodule SHT4X.MixProject do
       {:circuits_sim, "~> 0.1.2", only: [:dev, :test]},
       {:ex_doc, "~> 0.28", only: :docs, runtime: false},
       {:cerlc, "~> 0.2.0"},
-      {:typed_struct, "~> 0.3.0"}
+      {:typed_struct, "~> 0.3.0"},
+      {:telemetry, "~> 1.0"}
     ]
   end
 

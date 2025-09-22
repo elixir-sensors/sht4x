@@ -11,8 +11,20 @@ defmodule SHT4XTest do
 
   @i2c_bus "i2c-1"
   @i2c_address 0x44
+  @telemetry_event_prefix [:sht4x, :measure]
 
-  setup do
+  setup %{test: test} do
+    self = self()
+
+    :telemetry.attach(
+      "#{test}",
+      @telemetry_event_prefix,
+      fn name, measurements, metadata, _ ->
+        send(self, {:telemetry_event, name, measurements, metadata})
+      end,
+      nil
+    )
+
     SHT4XSim.inject_crc_errors(@i2c_bus, @i2c_address, 0)
     SHT4XSim.set_broken(@i2c_bus, @i2c_address, nil)
   end
@@ -27,6 +39,7 @@ defmodule SHT4XTest do
     assert measurement.quality == :fresh
     assert_in_delta measurement.humidity_rh, 33.3, 0.1
     assert_in_delta measurement.temperature_c, 11.1, 0.1
+    assert_telemetry_event(:fresh, 20_604, 21_008)
   end
 
   test "recovers from one crc error" do
@@ -40,6 +53,7 @@ defmodule SHT4XTest do
     assert measurement.quality == :fresh
     assert_in_delta measurement.humidity_rh, 33.3, 0.1
     assert_in_delta measurement.temperature_c, 11.1, 0.1
+    assert_telemetry_event(:fresh, 20_604, 21_008)
   end
 
   test "fails on crc errors on two transactions" do
@@ -54,6 +68,7 @@ defmodule SHT4XTest do
 
     measurement = SHT4X.get_sample(sht_pid)
     assert measurement.quality == :unusable
+    assert_telemetry_event(:unusable, 0, 0)
   end
 
   test "reading the simulated serial number" do
@@ -83,5 +98,28 @@ defmodule SHT4XTest do
 
     measurement = SHT4X.get_sample(sht_pid)
     assert measurement.quality == :unusable
+    assert_telemetry_event(:unusable, 0, 0)
+  end
+
+  defp assert_telemetry_event(measure_quality, expected_raw_humidity, expected_raw_temperature) do
+    assert_receive {:telemetry_event, @telemetry_event_prefix,
+                    %{
+                      current_measurement: %{
+                        quality: ^measure_quality,
+                        raw_reading_humidity: ^expected_raw_humidity,
+                        raw_reading_temperature: ^expected_raw_temperature,
+                        temperature_c: _,
+                        humidity_rh: _,
+                        dew_point_c: _
+                      },
+                      current_raw_measurement: %{
+                        quality: ^measure_quality,
+                        raw_reading_humidity: ^expected_raw_humidity,
+                        raw_reading_temperature: ^expected_raw_temperature,
+                        temperature_c: _,
+                        humidity_rh: _,
+                        dew_point_c: _
+                      }
+                    }, %{}}
   end
 end
