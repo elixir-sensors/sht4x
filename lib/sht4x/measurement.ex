@@ -104,8 +104,15 @@ defmodule SHT4X.Measurement do
   #   - 0x8001, 0x8000
   #   - 0x8002, 0x8002
   #   - 0x8003, 0x8002
+  #
+  #   - 0x9000, 0x9000
+  #   - Guessing that 0x9001 to 0x9003 are possible even though they haven't been seen
   defp raw_reading_valid?(t, rh)
        when t >= 0x8000 and t <= 0x8003 and rh >= 0x8000 and rh <= 0x8003,
+       do: false
+
+  defp raw_reading_valid?(t, rh)
+       when t >= 0x9000 and t <= 0x9003 and rh >= 0x9000 and rh <= 0x9003,
        do: false
 
   # Ensure raw values would be within min/max operating ranges
