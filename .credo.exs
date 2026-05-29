@@ -4,7 +4,8 @@
       name: "default",
       checks: [
         {CredoBinaryPatterns.Check.Consistency.Pattern},
-        {Credo.Check.Readability.ParenthesesOnZeroArityDefs, parens: true}
+        {Credo.Check.Readability.ParenthesesOnZeroArityDefs, parens: true},
+        {Credo.Check.Warning.UnsafeToAtom, []}
       ]
     }
   ]
