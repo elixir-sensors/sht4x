@@ -17,13 +17,18 @@ defmodule SHT4X.MixProject do
       package: package(),
       aliases: [],
       dialyzer: dialyzer(),
-      docs: docs(),
-      preferred_cli_env: %{
+      docs: docs()
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: %{
+        dialyzer: :lint,
         docs: :docs,
         "hex.publish": :docs,
         "hex.build": :docs,
-        credo: :lint,
-        dialyzer: :lint
+        credo: :lint
       }
     ]
   end
