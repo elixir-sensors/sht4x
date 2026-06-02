@@ -1,7 +1,7 @@
 # SHT4X
 
 [![Hex version](https://img.shields.io/hexpm/v/sht4x.svg "Hex version")](https://hex.pm/packages/sht4x)
-[![API docs](https://img.shields.io/hexpm/v/sht4x.svg?label=hexdocs "API docs")](https://hexdocs.pm/sht4x/SHT4X.html)
+[![API docs](https://img.shields.io/hexpm/v/sht4x.svg?label=hexdocs "API docs")](https://sht4x.hexdocs.pm/SHT4X.html)
 [![CircleCI](https://circleci.com/gh/elixir-sensors/sht4x.svg?style=svg)](https://circleci.com/gh/elixir-sensors/sht4x)
 [![REUSE status](https://api.reuse.software/badge/github.com/elixir-sensors/sht4x)](https://api.reuse.software/info/github.com/elixir-sensors/sht4x)
 
@@ -25,4 +25,4 @@ iex> SHT4X.get_sample(sht)
 }
 ```
 
-For details, see [API reference](https://hexdocs.pm/sht4x/api-reference.html).
+For details, see [API reference](https://sht4x.hexdocs.pm/api-reference.html).
